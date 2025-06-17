@@ -1,23 +1,66 @@
-
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
 
+# Стадії діалогу
+TYPE, ISSUE, NAME, PHONE = range(4)
+
+# Зберігання заявок
 clients = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привіт! Я бот сервісу. Щоб залишити заявку, натисни кнопку нижче.")
+    await update.message.reply_text("Привіт! Я приймаю заявки на ремонт.\nЯкий пристрій потребує ремонту?")
+    return TYPE
 
-async def handle_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+async def get_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["type"] = update.message.text
+    await update.message.reply_text("Опишіть проблему:")
+    return ISSUE
+
+async def get_issue(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["issue"] = update.message.text
+    await update.message.reply_text("Ваше ім’я:")
+    return NAME
+
+async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["name"] = update.message.text
+    await update.message.reply_text("Ваш номер телефону:")
+    return PHONE
+
+async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["phone"] = update.message.text
     user_id = update.message.from_user.id
-    clients[user_id] = text
-    print("chat_id:", update.message.chat_id)
-    await update.message.reply_text("✅ Заявку отримано. Ми зателефонуємо найближчим часом!")
+    clients[user_id] = context.user_data.copy()
 
-app = ApplicationBuilder().token("7715128894:AAFaA0ZGlroyEDkZAB13iEvpGhoIqk8mqk4").build()
+    await update.message.reply_text(
+        f"Дякуємо, {context.user_data['name']}!\n"
+        f"Ми записали вашу заявку:\n\n"
+        f"📱 Пристрій: {context.user_data['type']}\n"
+        f"🛠 Проблема: {context.user_data['issue']}\n"
+        f"📞 Телефон: {context.user_data['phone']}"
+    )
+    return ConversationHandler.END
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_request))
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Операцію скасовано.")
+    return ConversationHandler.END
 
-app.run_polling()
+# Основний запуск
+def main():
+    app = ApplicationBuilder().token("7715128894:AAFaA0ZGlroyEDkZAB13iEvpGhoIqk8mqk4").build()
 
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("start", start)],
+        states={
+            TYPE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_type)],
+            ISSUE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_issue)],
+            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
+            PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_phone)],
+        },
+        fallbacks=[CommandHandler("cancel", cancel)]
+    )
+
+    app.add_handler(conv_handler)
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
