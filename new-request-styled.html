@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заявка на ремонт</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #ecf0f1;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background: var(--card-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            background-color: #fdfdfd;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 24px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🛠️ Заявка на ремонт</h2>
+        <form onsubmit="submitForm(event)">
+            <label>Ім’я:</label>
+            <input type="text" name="name" required>
+
+            <label>Телефон:</label>
+            <input type="tel" name="phone" required>
+
+            <label>Тип пристрою:</label>
+            <input type="text" name="device" required>
+
+            <label>Опишіть проблему:</label>
+            <textarea name="issue" rows="4" required></textarea>
+
+            <button type="submit">📨 Відправити заявку</button>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            document.getElementById('status').innerText = "✅ Заявку надіслано!";
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>
