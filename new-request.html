@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Заявка на ремонт</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <h2>Залишити заявку</h2>
+  <form id="request-form">
+    <input type="text" name="name" placeholder="Ім’я" required><br>
+    <input type="tel" name="phone" placeholder="Телефон" required><br>
+    <input type="text" name="device" placeholder="Пристрій (наприклад, iPhone 11)" required><br>
+    <textarea name="issue" placeholder="Опишіть проблему" required></textarea><br>
+    <button type="submit">Надіслати</button>
+  </form>
+
+  <script>
+    const botToken = '7715128894:AAFaA0ZGlroyEDkZAB13iEvpGhoIqk8mqk4';
+    const chatId = '7715128894'; // замінимо пізніше, якщо потрібно інше
+
+    document.getElementById('request-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const msg = `
+🛠️ Нова заявка:
+👤 Ім’я: ${formData.get('name')}
+📞 Телефон: ${formData.get('phone')}
+📱 Пристрій: ${formData.get('device')}
+📝 Проблема: ${formData.get('issue')}
+      `;
+
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: msg
+        })
+      }).then(res => {
+        if (res.ok) {
+          alert('Заявку надіслано ✅');
+          Telegram.WebApp.close();
+        } else {
+          alert('Помилка надсилання 😞');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
